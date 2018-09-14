@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'D:/R&D/xyztool/scripts/XYZToolUi.ui'
+# Form implementation generated from reading ui file 'D:/R&D/XYZTool/scripts/XYZToolUi.ui'
 #
-# Created: Thu Sep 13 00:51:16 2018
+# Created: Thu Sep 13 22:06:53 2018
 #      by: pyside2-uic  running on PySide2 2.0.0~alpha0
 #
 # WARNING! All changes made in this file will be lost!
@@ -101,14 +101,14 @@ class Ui_XYZToolUi(object):
         self.label_4.setSizePolicy(sizePolicy)
         self.label_4.setObjectName("label_4")
         self.horizontalLayout_13.addWidget(self.label_4)
-        self.udimDPM = QtWidgets.QCheckBox(XYZToolUi)
+        self.udimFDM = QtWidgets.QCheckBox(XYZToolUi)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.udimDPM.sizePolicy().hasHeightForWidth())
-        self.udimDPM.setSizePolicy(sizePolicy)
-        self.udimDPM.setObjectName("udimDPM")
-        self.horizontalLayout_13.addWidget(self.udimDPM)
+        sizePolicy.setHeightForWidth(self.udimFDM.sizePolicy().hasHeightForWidth())
+        self.udimFDM.setSizePolicy(sizePolicy)
+        self.udimFDM.setObjectName("udimFDM")
+        self.horizontalLayout_13.addWidget(self.udimFDM)
         self.pickFDM = QtWidgets.QPushButton(XYZToolUi)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -164,7 +164,7 @@ class Ui_XYZToolUi(object):
         self.udimALBEDO.setText(QtWidgets.QApplication.translate("XYZToolUi", "UDIM", None, -1))
         self.pickAlbedo.setText(QtWidgets.QApplication.translate("XYZToolUi", "pick", None, -1))
         self.label_4.setText(QtWidgets.QApplication.translate("XYZToolUi", "Float Displacement Map.....", None, -1))
-        self.udimDPM.setText(QtWidgets.QApplication.translate("XYZToolUi", "UDIM", None, -1))
+        self.udimFDM.setText(QtWidgets.QApplication.translate("XYZToolUi", "UDIM", None, -1))
         self.pickFDM.setText(QtWidgets.QApplication.translate("XYZToolUi", "pick", None, -1))
         self.label_6.setText(QtWidgets.QApplication.translate("XYZToolUi", "XYZ Displacement Map........", None, -1))
         self.udimXYZ.setText(QtWidgets.QApplication.translate("XYZToolUi", "UDIM", None, -1))
