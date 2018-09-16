@@ -30,12 +30,10 @@ class ControlMainWindow(QtWidgets.QWidget):
         
         self.ui.pickMesh.clicked.connect(self.pickMesh)
         self.ui.pickFDM.clicked.connect(self.pickFDM)
-        self.ui.pickAlbedo.clicked.connect(self.pickAlbedo)
         self.ui.pickXYZ.clicked.connect(self.pickXYZ)
         self.ui.setup.clicked.connect(self.setup)
 
         self.mesh = ["none"]
-        self.albedoPath = ["none"]
         self.floatDisplacementPath = ["none"]
         self.xyzDisplacementPath = ["none"]
 
@@ -47,7 +45,7 @@ class ControlMainWindow(QtWidgets.QWidget):
         mesh = cmds.filterExpand(selection, sm=12)
 
         if  mesh == None:
-            om.MGlobal.displayError("your selection is not a polygon mesh") 
+            om.MGlobal.displayError("your selection is not a Polygon Mesh") 
             return 
 
         self.mesh = mesh
@@ -62,15 +60,7 @@ class ControlMainWindow(QtWidgets.QWidget):
             om.MGlobal.displayWarning("mesh has deformer in history that might affect the displacement, don't forget to check them if the displacement isn't working as expected")
 
 
-    def pickAlbedo(self):
-        
-        Filters = "Albedo texture files (*.exr *.tif .*tiff .*tex)"
-        albedoFile = cmds.fileDialog2(dialogStyle=2, fileMode=1, fileFilter= Filters, cap ="Select an Albedo map",okc ="Pick")
-        if albedoFile == None :
-            return
 
-        self.ui.pickAlbedo.setText(albedoFile[0])
-        self.albedoPath = albedoFile
 
 
     def pickFDM(self):
@@ -98,11 +88,10 @@ class ControlMainWindow(QtWidgets.QWidget):
        
         storedSelection = cmds.ls(sl=True,long=True) or []
         mesh = self.mesh[0]
-        AlbedoFile = self.albedoPath[0]
         FloatDisplacementFile = self.floatDisplacementPath[0]
         XYZDisplacementFile = self.xyzDisplacementPath[0]
         RenderEngineValue = str(self.ui.RenderEngine.currentIndex())
-        albedoUdimValue = str(self.ui.udimALBEDO.isChecked())
+
         fdmUdimValue = str(self.ui.udimFDM.isChecked())
         xyzUdimValue = str(self.ui.udimXYZ.isChecked())
         keepShaderValue = str(self.ui.keepShader.isChecked())
@@ -114,11 +103,10 @@ class ControlMainWindow(QtWidgets.QWidget):
             return
 
         if RenderEngineValue == "0" and currentEngine =="arnold" :
-            print 'lol'
             self.arnoldMeshSetup(mesh)
-            self.arnoldShaderSetup(mesh,keepShaderValue,albedoUdimValue,fdmUdimValue,xyzUdimValue,FloatDisplacementFile,XYZDisplacementFile,AlbedoFile)
-            cmds.select(storedSelection)
+            self.arnoldShaderSetup(mesh,keepShaderValue,fdmUdimValue,xyzUdimValue,FloatDisplacementFile,XYZDisplacementFile)
             om.MGlobal.displayInfo("done")
+            cmds.select(storedSelection)
             
             
 
@@ -162,16 +150,12 @@ class ControlMainWindow(QtWidgets.QWidget):
             cmds.setAttr(shapes+".aiDispPadding" ,1)
 
 
-    def arnoldShaderSetup(self, mesh,keepShaderValue, albedoUdimValue, fdmUdimValue, xyzUdimValue, FloatDisplacementFile, XYZDisplacementFile, AlbedoFile ):
+    def arnoldShaderSetup(self, mesh,keepShaderValue, fdmUdimValue, xyzUdimValue, FloatDisplacementFile, XYZDisplacementFile ):
 
         if keepShaderValue == "False":
             shader = cmds.shadingNode("aiStandard", name = mesh + "_aiStandard", asShader=True)
-            albedoUv = cmds.shadingNode("place2dTexture", asUtility=True)
-            albedoFile_node = cmds.shadingNode("file",name = "albedo_File" , asTexture=True, isColorManaged = True)
-            cmds.defaultNavigation(connectToExisting=True, source=albedoUv , destination=albedoFile_node) 
             shading_group= cmds.sets(name = mesh + "SG", renderable=True,noSurfaceShader=True,empty=True)
             cmds.connectAttr('%s.outColor' %shader ,'%s.surfaceShader' %shading_group)
-            cmds.connectAttr('%s.outColor' %albedoFile_node ,'%s.color' %shader)
 
         else:
             shape = cmds.listRelatives(mesh, shapes=True)
@@ -185,7 +169,11 @@ class ControlMainWindow(QtWidgets.QWidget):
         floatUv = cmds.shadingNode("place2dTexture", asUtility=True)
         floatFile_node = cmds.shadingNode("file",name = "float_displacement_File" , asTexture=True, isColorManaged = True)
         cmds.setAttr(floatFile_node+".filterType" ,0)
-        cmds.setAttr(floatFile_node+".fileTextureName" ,FloatDisplacementFile, type = "string")
+
+        if not FloatDisplacementFile == "none":
+            cmds.setAttr(floatFile_node+".fileTextureName" ,FloatDisplacementFile, type = "string") 
+
+        
         cmds.setAttr(floatFile_node+".colorSpace", "Raw", type="string")
         floatLayeredTexture = cmds.shadingNode("layeredTexture",name = "It_float_displacement" , asTexture=True, isColorManaged = True)
         floatLayerBlend = cmds.shadingNode("blendColors",name = "float_displacement_intensity" , asUtility=True)
@@ -219,6 +207,9 @@ class ControlMainWindow(QtWidgets.QWidget):
         cmds.setAttr(XYZLayerBlendR+".color2" ,0.0,0.0,0.0, type = "double3")
         cmds.setAttr(XYZLayerBlendG+".color2" ,0.0,0.0,0.0, type = "double3")
         cmds.setAttr(XYZLayerBlendB+".color2" ,0.0,0.0,0.0, type = "double3")
+        cmds.setAttr(XYZLayerBlendR+".blender" ,0)
+        cmds.setAttr(XYZLayerBlendG+".blender" ,0)
+        cmds.setAttr(XYZLayerBlendB+".blender" ,0)
 
 
 
@@ -274,16 +265,15 @@ class ControlMainWindow(QtWidgets.QWidget):
 
         if keepShaderValue == "False":
             cmds.connectAttr('%s.displacement' %displacement_shader ,'%s.displacementShader' %shading_group, force=True)
-            if albedoUdimValue == "True":
-                cmds.setAttr(albedoFile_node+".uvTilingMode", 3)
-                cmds.setAttr(albedoFile_node+".uvTileProxyQuality", 4) 
         else:
             cmds.connectAttr('%s.displacement' %displacement_shader ,'%s.displacementShader' %str(shading_group[0]), force=True)
+
 
         cmds.select(cmds.listRelatives(mesh, shapes=True))
 
         if keepShaderValue == "False":
-            cmds.hyperShade(assign=shading_group)        
+            cmds.hyperShade(assign=shading_group)
+        
 
 
 def run():

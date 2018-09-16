@@ -1,12 +1,3 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'D:/R&D/XYZTool/scripts/XYZToolUi.ui'
-#
-# Created: Thu Sep 13 22:06:53 2018
-#      by: pyside2-uic  running on PySide2 2.0.0~alpha0
-#
-# WARNING! All changes made in this file will be lost!
-
 from PySide2 import QtCore, QtGui, QtWidgets
 
 class Ui_XYZToolUi(object):
@@ -64,33 +55,6 @@ class Ui_XYZToolUi(object):
         self.pickMesh.setObjectName("pickMesh")
         self.horizontalLayout_5.addWidget(self.pickMesh)
         self.verticalLayout.addLayout(self.horizontalLayout_5)
-        self.horizontalLayout_15 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_15.setObjectName("horizontalLayout_15")
-        self.label_7 = QtWidgets.QLabel(XYZToolUi)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_7.sizePolicy().hasHeightForWidth())
-        self.label_7.setSizePolicy(sizePolicy)
-        self.label_7.setObjectName("label_7")
-        self.horizontalLayout_15.addWidget(self.label_7)
-        self.udimALBEDO = QtWidgets.QCheckBox(XYZToolUi)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.udimALBEDO.sizePolicy().hasHeightForWidth())
-        self.udimALBEDO.setSizePolicy(sizePolicy)
-        self.udimALBEDO.setObjectName("udimALBEDO")
-        self.horizontalLayout_15.addWidget(self.udimALBEDO)
-        self.pickAlbedo = QtWidgets.QPushButton(XYZToolUi)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.pickAlbedo.sizePolicy().hasHeightForWidth())
-        self.pickAlbedo.setSizePolicy(sizePolicy)
-        self.pickAlbedo.setObjectName("pickAlbedo")
-        self.horizontalLayout_15.addWidget(self.pickAlbedo)
-        self.verticalLayout.addLayout(self.horizontalLayout_15)
         self.horizontalLayout_13 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_13.setObjectName("horizontalLayout_13")
         self.label_4 = QtWidgets.QLabel(XYZToolUi)
@@ -160,9 +124,6 @@ class Ui_XYZToolUi(object):
         self.keepShader.setText(QtWidgets.QApplication.translate("XYZToolUi", "keep current shader", None, -1))
         self.label.setText(QtWidgets.QApplication.translate("XYZToolUi", "Mesh........................................................", None, -1))
         self.pickMesh.setText(QtWidgets.QApplication.translate("XYZToolUi", "pick", None, -1))
-        self.label_7.setText(QtWidgets.QApplication.translate("XYZToolUi", "Albedo Map.........................", None, -1))
-        self.udimALBEDO.setText(QtWidgets.QApplication.translate("XYZToolUi", "UDIM", None, -1))
-        self.pickAlbedo.setText(QtWidgets.QApplication.translate("XYZToolUi", "pick", None, -1))
         self.label_4.setText(QtWidgets.QApplication.translate("XYZToolUi", "Float Displacement Map.....", None, -1))
         self.udimFDM.setText(QtWidgets.QApplication.translate("XYZToolUi", "UDIM", None, -1))
         self.pickFDM.setText(QtWidgets.QApplication.translate("XYZToolUi", "pick", None, -1))
