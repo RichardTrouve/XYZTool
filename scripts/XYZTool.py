@@ -138,7 +138,7 @@ class ControlMainWindow(QtWidgets.QWidget):
 
         for shapes in shape:
             cmds.setAttr(shapes+".aiSubdivType" ,1)
-            cmds.setAttr(shapes+".aiSubdivIterations" ,5)
+            cmds.setAttr(shapes+".aiSubdivIterations" ,4)
             cmds.setAttr(shapes+".aiSubdivUvSmoothing" ,2)
             cmds.setAttr(shapes+".aiDispPadding" ,1)
 
