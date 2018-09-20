@@ -77,7 +77,7 @@ class ControlMainWindow(QtWidgets.QWidget):
     def pickXYZ(self):
         
         Filters = "XYZ Displacement texture files (*.exr *.tif .*tiff .*tex)"
-        xyzDisplacementFile = cmds.fileDialog2(dialogStyle=2, fileMode=1, fileFilter= Filters, cap ="Select an XYZ displacement map",okc ="Pick")
+        xyzDisplacementFile = cmds.fileDialog2(dialogStyle=2, fileMode=1, fileFilter= Filters, cap ="Select a XYZ displacement map",okc ="Pick")
         if xyzDisplacementFile == None :
             return
 
@@ -106,13 +106,17 @@ class ControlMainWindow(QtWidgets.QWidget):
         if RenderEngineValue == "0" and currentEngine =="arnold" :
             self.arnoldMeshSetup(mesh)
             self.arnoldShaderSetup(mesh,keepShaderValue,fdmUdimValue,xyzUdimValue,FloatDisplacementFile,XYZDisplacementFile)
-            om.MGlobal.displayInfo("setup complete")
+            om.MGlobal.displayInfo("done")
             cmds.select(storedSelection)
+            
+            
 
-         elif RenderEngineValue == "1" and currentEngine =="renderManRIS":
+        elif RenderEngineValue == "1" and currentEngine =="renderManRIS":
             print "renderman setup not yet coded"
 
             
+
+
         elif RenderEngineValue == "2" and currentEngine =="vray":
             print "vray setup not yet coded"
 
