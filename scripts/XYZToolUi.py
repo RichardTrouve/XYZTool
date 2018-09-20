@@ -115,7 +115,7 @@ class Ui_XYZToolUi(object):
         QtCore.QMetaObject.connectSlotsByName(XYZToolUi)
 
     def retranslateUi(self, XYZToolUi):
-        XYZToolUi.setWindowTitle(QtWidgets.QApplication.translate("XYZToolUi", "Texturing XYZ Tool", None, -1))
+        XYZToolUi.setWindowTitle(QtWidgets.QApplication.translate("XYZToolUi", "XYZ Displacement Tool", None, -1))
         self.setup.setText(QtWidgets.QApplication.translate("XYZToolUi", "Set it up", None, -1))
         self.label_5.setText(QtWidgets.QApplication.translate("XYZToolUi", "Render Engine........................................", None, -1))
         self.RenderEngine.setItemText(0, QtWidgets.QApplication.translate("XYZToolUi", "Arnold", None, -1))

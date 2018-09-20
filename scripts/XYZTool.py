@@ -28,6 +28,7 @@ class ControlMainWindow(QtWidgets.QWidget):
         self.ui = XYZToolUi.Ui_XYZToolUi()
         self.ui.setupUi(self)
         
+        
         self.ui.pickMesh.clicked.connect(self.pickMesh)
         self.ui.pickFDM.clicked.connect(self.pickFDM)
         self.ui.pickXYZ.clicked.connect(self.pickXYZ)
@@ -66,7 +67,7 @@ class ControlMainWindow(QtWidgets.QWidget):
     def pickFDM(self):
         
         Filters = "Float Displacement texture files (*.exr *.tif .*tiff .*tex)"
-        floatDisplacementFile = cmds.fileDialog2(dialogStyle=2, fileMode=1, fileFilter= Filters, cap ="Select a float displacement map",okc ="Pick")
+        floatDisplacementFile = cmds.fileDialog2(dialogStyle=2, fileMode=1, fileFilter= Filters, cap ="Select a float displacement map generated from Zbrush or Mudbox",okc ="Pick")
         if floatDisplacementFile == None :
             return
 
@@ -76,7 +77,7 @@ class ControlMainWindow(QtWidgets.QWidget):
     def pickXYZ(self):
         
         Filters = "XYZ Displacement texture files (*.exr *.tif .*tiff .*tex)"
-        xyzDisplacementFile = cmds.fileDialog2(dialogStyle=2, fileMode=1, fileFilter= Filters, cap ="Select a XYZ displacement map",okc ="Pick")
+        xyzDisplacementFile = cmds.fileDialog2(dialogStyle=2, fileMode=1, fileFilter= Filters, cap ="Select an XYZ displacement map",okc ="Pick")
         if xyzDisplacementFile == None :
             return
 
@@ -99,34 +100,22 @@ class ControlMainWindow(QtWidgets.QWidget):
 
 
         if (FloatDisplacementFile == "none" and XYZDisplacementFile == "none") or (mesh == "none"):
-            om.MGlobal.displayError("Please select at least 1 displacement file and a Polygon Mesh")
+            om.MGlobal.displayError("Please select at least one displacement file and a Polygon Mesh")
             return
 
         if RenderEngineValue == "0" and currentEngine =="arnold" :
             self.arnoldMeshSetup(mesh)
             self.arnoldShaderSetup(mesh,keepShaderValue,fdmUdimValue,xyzUdimValue,FloatDisplacementFile,XYZDisplacementFile)
-            om.MGlobal.displayInfo("done")
+            om.MGlobal.displayInfo("setup complete")
             cmds.select(storedSelection)
-            
-            
 
-        elif RenderEngineValue == "1" and currentEngine =="renderManRIS":
+         elif RenderEngineValue == "1" and currentEngine =="renderManRIS":
             print "renderman setup not yet coded"
-            #currentEngine = "renderMan"
-            #self.renderManMeshSetup(mesh)
-            #self.rendermanShaderSetup(mesh,keepShaderValue,udimValue,DisplacementFile)
-            #cmds.select(storedSelection)
-            #om.MGlobal.displayInfo("done")
+
             
-
-
         elif RenderEngineValue == "2" and currentEngine =="vray":
             print "vray setup not yet coded"
-            #self.getLuma(DisplacementFile)
-            #self.vrayMeshSetup(mesh)
-            #self.vrayShaderSetup(mesh,keepShaderValue,udimValue,DisplacementFile)
-            #cmds.select(storedSelection)
-            #om.MGlobal.displayInfo("done")
+
 
         else:
             if RenderEngineValue == "0":
@@ -168,28 +157,20 @@ class ControlMainWindow(QtWidgets.QWidget):
 
         floatUv = cmds.shadingNode("place2dTexture", asUtility=True)
         floatFile_node = cmds.shadingNode("file",name = "float_displacement_File" , asTexture=True, isColorManaged = True)
-        cmds.setAttr(floatFile_node+".filterType" ,0)
+        cmds.setAttr(floatFile_node+".filterType" ,3)
 
         if not FloatDisplacementFile == "none":
             cmds.setAttr(floatFile_node+".fileTextureName" ,FloatDisplacementFile, type = "string") 
 
         
         cmds.setAttr(floatFile_node+".colorSpace", "Raw", type="string")
-        floatLayeredTexture = cmds.shadingNode("layeredTexture",name = "It_float_displacement" , asTexture=True, isColorManaged = True)
-        floatLayerBlend = cmds.shadingNode("blendColors",name = "float_displacement_intensity" , asUtility=True)
 
         #---------------------------------------------------------------------------
 
         cmds.defaultNavigation(connectToExisting=True, source=floatUv , destination=floatFile_node)
-        cmds.connectAttr('%s.outColor' %floatFile_node, '%s.inputs[1].color' %floatLayeredTexture)
-        cmds.connectAttr('%s.outColor' %floatFile_node, '%s.inputs[0].color' %floatLayeredTexture)
-        cmds.disconnectAttr('%s.outColor' %floatFile_node, '%s.inputs[0].color' %floatLayeredTexture)
-        cmds.setAttr(floatLayeredTexture+".inputs[0].color" ,0.5,0.5,0.5, type = "double3")
-        cmds.setAttr(floatLayeredTexture+".inputs[0].blendMode" ,5)
-        cmds.setAttr(floatLayerBlend+".color2" ,0.0,0.0,0.0, type = "double3")
 
 
-        cmds.connectAttr('%s.outColorR' %floatLayeredTexture, '%s.color1R' %floatLayerBlend)
+
 
 
 
@@ -197,7 +178,7 @@ class ControlMainWindow(QtWidgets.QWidget):
         #---------------------------------------------------------------------------
         XYZuv = cmds.shadingNode("place2dTexture", asUtility=True)
         XYZFile_node = cmds.shadingNode("file",name = "XYZ_displacement_File" , asTexture=True, isColorManaged = True)
-        cmds.setAttr(XYZFile_node+".filterType" ,0)
+        cmds.setAttr(XYZFile_node+".filterType" ,3)
         cmds.setAttr(XYZFile_node+".fileTextureName" ,XYZDisplacementFile, type = "string")
         cmds.setAttr(XYZFile_node+".colorSpace", "Raw", type="string")
         XYZLayeredTexture = cmds.shadingNode("layeredTexture",name = "It_XYZ_displacement" , asTexture=True, isColorManaged = True)
@@ -244,7 +225,10 @@ class ControlMainWindow(QtWidgets.QWidget):
         cmds.connectAttr('%s.output' %XYZLayerBlendR, '%s.input3D[0]' %MapsMerge)
         cmds.connectAttr('%s.output' %XYZLayerBlendG, '%s.input3D[1]' %MapsMerge)
         cmds.connectAttr('%s.output' %XYZLayerBlendB, '%s.input3D[2]' %MapsMerge)
-        cmds.connectAttr('%s.output' %floatLayerBlend, '%s.input3D[3]' %MapsMerge)
+        cmds.connectAttr('%s.outColorR' %floatFile_node, '%s.input3D[3].input3Dx' %MapsMerge)
+        cmds.connectAttr('%s.outColorR' %floatFile_node, '%s.input3D[3].input3Dy' %MapsMerge)
+        cmds.connectAttr('%s.outColorR' %floatFile_node, '%s.input3D[3].input3Dz' %MapsMerge)
+
 
         luminance = cmds.shadingNode("luminance", name = "ConvertToLuminance", asUtility=True) 
         cmds.connectAttr('%s.output3D' %MapsMerge, '%s.value' %luminance)
