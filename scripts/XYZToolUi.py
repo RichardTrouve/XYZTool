@@ -3,7 +3,7 @@ from PySide2 import QtCore, QtGui, QtWidgets
 class Ui_XYZToolUi(object):
     def setupUi(self, XYZToolUi):
         XYZToolUi.setObjectName("XYZToolUi")
-        XYZToolUi.resize(625, 204)
+        XYZToolUi.resize(625, 173)
         self.gridLayout = QtWidgets.QGridLayout(XYZToolUi)
         self.gridLayout.setObjectName("gridLayout")
         self.setup = QtWidgets.QPushButton(XYZToolUi)

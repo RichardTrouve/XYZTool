@@ -12,7 +12,6 @@ import XYZToolUi
 reload (XYZToolUi)
 
 
-
 def maya_main_window():
     main_window_ptr = omui.MQtUtil.mainWindow()
     return wrapInstance(long(main_window_ptr), QtWidgets.QWidget)
@@ -58,7 +57,7 @@ class ControlMainWindow(QtWidgets.QWidget):
 
     def pickFDM(self):
         
-        Filters = "Float Displacement texture files (*.exr *.tif .*tiff .*tex)"
+        Filters = "*.exr *.tif *.tiff *.tex"
         floatDisplacementFile = cmds.fileDialog2(dialogStyle=2, fileMode=1, fileFilter= Filters, cap ="Select a float displacement map generated from Zbrush or Mudbox",okc ="Pick")
         if floatDisplacementFile == None :
             return
@@ -69,8 +68,8 @@ class ControlMainWindow(QtWidgets.QWidget):
 
     def pickXYZ(self):
         
-        Filters = "XYZ Displacement texture files (*.exr *.tif .*tiff .*tex)"
-        xyzDisplacementFile = cmds.fileDialog2(dialogStyle=2, fileMode=1, fileFilter= Filters, cap ="Select a XYZ displacement map",okc ="Pick")
+        Filters = "*.exr *.tif *.tiff *.tex"
+        xyzDisplacementFile = cmds.fileDialog2(dialogStyle=2, fileMode=1, fileFilter= Filters, cap ="Select an XYZ displacement map",okc ="Pick")
         if xyzDisplacementFile == None :
             return
         self.ui.pickXYZ.setText(xyzDisplacementFile[0])
@@ -102,7 +101,9 @@ class ControlMainWindow(QtWidgets.QWidget):
             
         elif RenderEngineValue == "1" and currentEngine =="renderManRIS":
             self.renderManMeshSetup(mesh)
-            print "renderman setup not yet coded"
+            self.rendermanShaderSetup(mesh,keepShaderValue,fdmUdimValue,xyzUdimValue,FloatDisplacementFile,XYZDisplacementFile,RenderEngineValue)
+            om.MGlobal.displayInfo("done")
+            cmds.select(storedSelection)
 
         elif RenderEngineValue == "2" and currentEngine =="vray":
             self.vrayMeshSetup(mesh)
@@ -261,6 +262,109 @@ class ControlMainWindow(QtWidgets.QWidget):
         if keepShaderValue == "False":
             cmds.hyperShade(assign=shading_group)
         
+#---------------------------------------------
+
+    def rendermanShaderSetup(self, mesh,keepShaderValue, fdmUdimValue, xyzUdimValue, FloatDisplacementFile, XYZDisplacementFile,RenderEngineValue ):
+
+        if keepShaderValue == "False":
+            shader = cmds.shadingNode("PxrSurface", name = mesh +"_PxrSurface", asShader=True)        
+            shading_group= cmds.sets(name = mesh + "SG", renderable=True,noSurfaceShader=True,empty=True)
+            cmds.connectAttr('%s.outColor' %shader ,'%s.surfaceShader' %shading_group)
+
+        else:
+            shape = cmds.listRelatives(mesh, shapes=True)
+            shading_group = cmds.listConnections(shape,type='shadingEngine')
+
+        displacement_shader = cmds.shadingNode("PxrDisplace",name = mesh + "_PxrDisplace", asShader=True)
+        displacement_transform = cmds.shadingNode("PxrDispTransform",name = mesh + "_PxrDispTransform", asUtility=True)
+        floatFile_node = cmds.shadingNode("PxrTexture",name = mesh +"_float_Displacement_PxrTexture_File" , asTexture=True,)
+        XYZFile_node = cmds.shadingNode("PxrTexture",name = mesh +"_XYZ_Displacement_PxrTexture_File" , asTexture=True,)
+
+        cmds.setAttr(floatFile_node+".filter" , 0)
+        cmds.setAttr(XYZFile_node+".filter" , 0)
+        cmds.setAttr(displacement_transform+".dispType", 1)
+        cmds.setAttr(displacement_transform+".dispHeight", 1.2)
+        cmds.setAttr(displacement_transform+".dispDepth", 1.2)
+        
+        XYZLayeredTexture = cmds.shadingNode("layeredTexture",name = "It_XYZ_displacement" , asTexture=True, isColorManaged = True)
+        XYZLayerBlendR = cmds.shadingNode("blendColors",name = "XYZ_R_intensity" , asUtility=True)
+        XYZLayerBlendG = cmds.shadingNode("blendColors",name = "XYZ_G_intensity" , asUtility=True)
+        XYZLayerBlendB = cmds.shadingNode("blendColors",name = "XYZ_B_intensity" , asUtility=True)
+        cmds.setAttr(XYZLayerBlendR+".color2" ,0.0,0.0,0.0, type = "double3")
+        cmds.setAttr(XYZLayerBlendG+".color2" ,0.0,0.0,0.0, type = "double3")
+        cmds.setAttr(XYZLayerBlendB+".color2" ,0.0,0.0,0.0, type = "double3")
+        cmds.setAttr(XYZLayerBlendR+".blender" ,0)
+        cmds.setAttr(XYZLayerBlendG+".blender" ,0)
+        cmds.setAttr(XYZLayerBlendB+".blender" ,0)
+
+        
+        
+        cmds.connectAttr('%s.resultRGB' %XYZFile_node, '%s.inputs[1].color' %XYZLayeredTexture)
+        cmds.connectAttr('%s.resultRGB' %XYZFile_node, '%s.inputs[0].color' %XYZLayeredTexture)
+        cmds.disconnectAttr('%s.resultRGB' %XYZFile_node, '%s.inputs[0].color' %XYZLayeredTexture)
+        cmds.setAttr(XYZLayeredTexture+".inputs[0].color" ,0.5,0.5,0.5, type = "double3")
+        cmds.setAttr(XYZLayeredTexture+".inputs[0].blendMode" ,5)
+        cmds.setAttr(XYZLayeredTexture+".inputs[1].blendMode" ,4)
+
+        cmds.connectAttr('%s.outColorR' %XYZLayeredTexture, '%s.color1R' %XYZLayerBlendR)
+        cmds.connectAttr('%s.outColorR' %XYZLayeredTexture, '%s.color1G' %XYZLayerBlendR)
+        cmds.connectAttr('%s.outColorR' %XYZLayeredTexture, '%s.color1B' %XYZLayerBlendR)
+
+        cmds.connectAttr('%s.outColorG' %XYZLayeredTexture, '%s.color1R' %XYZLayerBlendG)
+        cmds.connectAttr('%s.outColorG' %XYZLayeredTexture, '%s.color1G' %XYZLayerBlendG)
+        cmds.connectAttr('%s.outColorG' %XYZLayeredTexture, '%s.color1B' %XYZLayerBlendG)
+
+        cmds.connectAttr('%s.outColorB' %XYZLayeredTexture, '%s.color1R' %XYZLayerBlendB)
+        cmds.connectAttr('%s.outColorB' %XYZLayeredTexture, '%s.color1G' %XYZLayerBlendB)
+        cmds.connectAttr('%s.outColorB' %XYZLayeredTexture, '%s.color1B' %XYZLayerBlendB)
+
+        MapsMerge = cmds.shadingNode("plusMinusAverage", name = "merger", asUtility=True) 
+
+        cmds.connectAttr('%s.output' %XYZLayerBlendR, '%s.input3D[0]' %MapsMerge)
+        cmds.connectAttr('%s.output' %XYZLayerBlendG, '%s.input3D[1]' %MapsMerge)
+        cmds.connectAttr('%s.output' %XYZLayerBlendB, '%s.input3D[2]' %MapsMerge)
+
+        cmds.connectAttr('%s.resultRGB' %floatFile_node, '%s.input3D[3]' %MapsMerge)
+
+
+        luminance = cmds.shadingNode("luminance", name = "ConvertToLuminance", asUtility=True) 
+        cmds.connectAttr('%s.output3D' %MapsMerge, '%s.value' %luminance)
+        cmds.connectAttr('%s.outValue' %luminance, '%s.dispScalar' %displacement_transform)
+
+
+        
+        if fdmUdimValue == "True":
+
+            udimcoords = range(1001,1999)
+
+            for coords in udimcoords:
+               FloatDisplacementFile = FloatDisplacementFile.replace(str(coords), '_MAPID_')
+            cmds.setAttr(floatFile_node+".filename" ,FloatDisplacementFile, type = "string")
+            cmds.setAttr(floatFile_node+".atlasStyle", 1)                        
+        
+        cmds.setAttr(floatFile_node+".filename" ,FloatDisplacementFile, type = "string")
+
+        if xyzUdimValue == "True":
+
+            udimcoords = range(1001,1999)
+
+            for coords in udimcoords:
+               XYZDisplacementFile = XYZDisplacementFile.replace(str(coords), '_MAPID_')
+            cmds.setAttr(XYZFile_node+".filename" ,XYZDisplacementFile, type = "string")
+            cmds.setAttr(XYZFile_node+".atlasStyle", 1)                        
+        cmds.setAttr(XYZFile_node+".filename" ,XYZDisplacementFile, type = "string")
+        
+        if keepShaderValue == "False":
+            cmds.connectAttr('%s.outColor' %displacement_shader ,'%s.displacementShader' %shading_group, force=True)
+        else:
+            cmds.connectAttr('%s.outColor' %displacement_shader ,'%s.displacementShader' %str(shading_group[0]), force=True)                
+        
+        cmds.connectAttr('%s.resultF' %displacement_transform, '%s.dispScalar' %displacement_shader)
+        cmds.select(cmds.listRelatives(mesh, shapes=True))
+
+        if keepShaderValue == "False":
+            cmds.hyperShade(assign=shading_group)        
+
 #---------------------------------------------
 
 def run():
