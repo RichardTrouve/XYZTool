@@ -99,7 +99,7 @@ class ControlMainWindow(QtWidgets.QWidget):
             om.MGlobal.displayInfo("done")
             cmds.select(storedSelection)
             
-        elif RenderEngineValue == "1" and currentEngine =="renderManRIS":
+        elif RenderEngineValue == "1" and currentEngine =="renderman":
             self.renderManMeshSetup(mesh)
             self.rendermanShaderSetup(mesh,keepShaderValue,fdmUdimValue,xyzUdimValue,FloatDisplacementFile,XYZDisplacementFile,RenderEngineValue)
             om.MGlobal.displayInfo("done")
@@ -140,9 +140,7 @@ class ControlMainWindow(QtWidgets.QWidget):
         shape = cmds.listRelatives(mesh, shapes=True)
 
         for shapes in shape:
-            cmds.rman("addAttr",shapes,"rman__torattr___subdivScheme")
-            cmds.rman("addAttr",shapes,"rman__torattr___subdivFacevaryingInterp")
-            cmds.setAttr(shapes+'.rman__torattr___subdivFacevaryingInterp', 3)
+            cmds.setAttr(shapes+'.rman_displacementBound', 2.0002)
 
 #---------------------------------------------
 
