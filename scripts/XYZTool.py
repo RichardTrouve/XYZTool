@@ -99,11 +99,17 @@ class ControlMainWindow(QtWidgets.QWidget):
             om.MGlobal.displayInfo("done")
             cmds.select(storedSelection)
             
-        elif RenderEngineValue == "1" and currentEngine =="renderManRIS":
-            self.renderManMeshSetup(mesh)
+        elif RenderEngineValue == "1" and currentEngine =="renderman":
+            self.rendermanMeshSetup(mesh)
             self.rendermanShaderSetup(mesh,keepShaderValue,fdmUdimValue,xyzUdimValue,FloatDisplacementFile,XYZDisplacementFile,RenderEngineValue)
             om.MGlobal.displayInfo("done")
             cmds.select(storedSelection)
+
+        elif RenderEngineValue == "1" and currentEngine =="renderManRIS":
+            self.renderManRISMeshSetup(mesh)
+            self.rendermanShaderSetup(mesh,keepShaderValue,fdmUdimValue,xyzUdimValue,FloatDisplacementFile,XYZDisplacementFile,RenderEngineValue)
+            om.MGlobal.displayInfo("done")
+            cmds.select(storedSelection)            
 
         elif RenderEngineValue == "2" and currentEngine =="vray":
             self.vrayMeshSetup(mesh)
@@ -135,7 +141,16 @@ class ControlMainWindow(QtWidgets.QWidget):
 
 #---------------------------------------------
 
-    def renderManMeshSetup(self,mesh):
+    def rendermanMeshSetup(self,mesh):
+
+        shape = cmds.listRelatives(mesh, shapes=True)
+
+        for shapes in shape:
+            cmds.setAttr(shapes+'.rman_displacementBound', 2.0002)
+
+#---------------------------------------------
+
+    def renderManRISMeshSetup(self,mesh):
 
         shape = cmds.listRelatives(mesh, shapes=True)
 
@@ -143,7 +158,6 @@ class ControlMainWindow(QtWidgets.QWidget):
             cmds.rman("addAttr",shapes,"rman__torattr___subdivScheme")
             cmds.rman("addAttr",shapes,"rman__torattr___subdivFacevaryingInterp")
             cmds.setAttr(shapes+'.rman__torattr___subdivFacevaryingInterp', 3)
-
 #---------------------------------------------
 
     def vrayMeshSetup(self,mesh):
