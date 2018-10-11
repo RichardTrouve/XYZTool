@@ -180,23 +180,18 @@ class ControlMainWindow(QtWidgets.QWidget):
 
     def avShaderSetup(self, mesh,keepShaderValue, fdmUdimValue, xyzUdimValue, FloatDisplacementFile, XYZDisplacementFile,RenderEngineValue ):
 
-        if RenderEngineValue == "arnold":
-            shader = cmds.shadingNode("aiStandard", name = mesh + "_aiStandard", asShader=True)
-        else:
-            shader = cmds.shadingNode("VRayMtl", name = mesh +"_VRayMtl", asShader=True)
-
         if keepShaderValue == "False":
-            if RenderEngineValue == "arnold":
+            if RenderEngineValue == "0":
                 shader = cmds.shadingNode("aiStandard", name = mesh + "_aiStandard", asShader=True)
             else:
-                shader = cmds.shadingNode("VRayMtl", name = mesh +"_VRayMtl", asShader=True)            
+                shader = cmds.shadingNode("VRayMtl", name = mesh +"_VRayMtl", asShader=True)
+                
             shading_group= cmds.sets(name = mesh + "SG", renderable=True,noSurfaceShader=True,empty=True)
             cmds.connectAttr('%s.outColor' %shader ,'%s.surfaceShader' %shading_group)
-
         else:
             shape = cmds.listRelatives(mesh, shapes=True)
             shading_group = cmds.listConnections(shape,type='shadingEngine')
-                
+                            
         floatUv = cmds.shadingNode("place2dTexture", asUtility=True)
         floatFile_node = cmds.shadingNode("file",name = "float_displacement_File" , asTexture=True, isColorManaged = True)
         cmds.setAttr(floatFile_node+".filterType" ,3)
@@ -205,6 +200,8 @@ class ControlMainWindow(QtWidgets.QWidget):
             cmds.setAttr(floatFile_node+".fileTextureName" ,FloatDisplacementFile, type = "string") 
 
         cmds.setAttr(floatFile_node+".colorSpace", "Raw", type="string")
+        cmds.setAttr(floatFile_node+".defaultColor" ,0.0,0.0,0.0, type="double3")
+
         cmds.defaultNavigation(connectToExisting=True, source=floatUv , destination=floatFile_node)
 
         XYZuv = cmds.shadingNode("place2dTexture", asUtility=True)
