@@ -1,4 +1,4 @@
-XYZ Displacement Tool V1.02
+XYZ Displacement Tool V1.03
 
 
 this tool has been made to automate displacement exported from zbrush/mudbox and Texturing XYZ displacement map setup in maya

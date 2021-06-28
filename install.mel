@@ -9,7 +9,7 @@ setParent $currentShelf;
 string $scriptLocation=`scriptLocation`;
 string $scriptName="XYZ Tool";
 string $XYZicon = $scriptLocation + "/scripts/icons/XYZ_icon.png";
-string $command="import XYZTool\nreload (XYZTool)\nXYZTool.run()";
+string $command="import XYZTool\ntry:\n    reload\nexcept NameError:\n    try:\n        from importlib import reload\n    except ImportError:\n        from imp import reload\nreload(XYZTool)\nXYZTool.run()";
 
 // Setup module
 python("import os");
